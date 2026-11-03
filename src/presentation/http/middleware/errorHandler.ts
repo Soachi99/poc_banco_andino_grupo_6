@@ -1,6 +1,12 @@
 import type { ErrorRequestHandler } from 'express';
 
 import { DomainError } from '../../../domain/errors/DomainError.js';
+import {
+  LanguageModelRateLimitError,
+  LanguageModelResponseError,
+  LanguageModelTimeoutError,
+  LanguageModelUnavailableError,
+} from '../../../domain/errors/LanguageModelErrors.js';
 import { VaultIntegrityError, VaultPersistenceError, VaultUnavailableError } from '../../../domain/errors/VaultErrors.js';
 import { ValidationError } from '../errors/ValidationError.js';
 
@@ -41,6 +47,30 @@ export const errorHandler: ErrorRequestHandler = (error, _request, response, _ne
   if (error instanceof VaultIntegrityError || error instanceof VaultPersistenceError) {
     console.error(error.name);
     response.status(500).json({ error: 'Error interno del servidor.' });
+    return;
+  }
+
+  if (error instanceof LanguageModelTimeoutError) {
+    console.error(error.name);
+    response.status(504).json({ error: error.message });
+    return;
+  }
+
+  if (error instanceof LanguageModelRateLimitError) {
+    console.error(error.name);
+    response.status(429).json({ error: error.message });
+    return;
+  }
+
+  if (error instanceof LanguageModelUnavailableError) {
+    console.error(error.name);
+    response.status(503).json({ error: error.message });
+    return;
+  }
+
+  if (error instanceof LanguageModelResponseError) {
+    console.error(error.name);
+    response.status(502).json({ error: error.message });
     return;
   }
 

@@ -13,3 +13,14 @@ export class UnknownTokenError extends DomainError {
     this.name = 'UnknownTokenError';
   }
 }
+
+/**
+ * El texto trae un seudónimo que esta solicitud no emitió, o uno alterado.
+ * No enumera los identificadores: el texto puede venir de un modelo y no es confiable.
+ */
+export class UnauthorizedTokenError extends DomainError {
+  constructor() {
+    super('La respuesta contiene tokens que no pertenecen a esta solicitud.');
+    this.name = 'UnauthorizedTokenError';
+  }
+}
