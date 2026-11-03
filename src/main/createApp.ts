@@ -25,6 +25,10 @@ export interface AppDependencies {
   tokenMappingRepository?: TokenMappingRepository;
 }
 
+/**
+ * El repositorio por defecto es el de memoria: aísla las pruebas del proceso.
+ * El arranque real inyecta MongoTokenMappingRepository desde server.ts.
+ */
 export function createApp(dependencies: AppDependencies = {}): Express {
   const detector =
     dependencies.detector ??

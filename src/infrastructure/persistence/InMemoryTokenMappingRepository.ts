@@ -4,9 +4,8 @@ import type { TokenMappingRepository } from '../../domain/repositories/TokenMapp
 import type { PiiType } from '../../domain/value-objects/PiiType.js';
 
 /**
- * Vault volátil del proceso.
- * Guarda el valor original en claro para poder restituirlo.
- * Un adaptador persistente tiene que cifrar ese valor en reposo.
+ * Doble en memoria del vault, usado por las pruebas.
+ * El proceso real usa MongoTokenMappingRepository.
  */
 export class InMemoryTokenMappingRepository implements TokenMappingRepository {
   private readonly byPii = new Map<PiiType, Map<string, TokenMapping>>();

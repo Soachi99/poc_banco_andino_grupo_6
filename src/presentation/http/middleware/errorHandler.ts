@@ -1,6 +1,7 @@
 import type { ErrorRequestHandler } from 'express';
 
 import { DomainError } from '../../../domain/errors/DomainError.js';
+import { VaultIntegrityError, VaultPersistenceError, VaultUnavailableError } from '../../../domain/errors/VaultErrors.js';
 import { ValidationError } from '../errors/ValidationError.js';
 
 interface HttpErrorLike {
@@ -31,7 +32,19 @@ export const errorHandler: ErrorRequestHandler = (error, _request, response, _ne
     return;
   }
 
-  console.error(error instanceof Error ? error.stack : error);
+  if (error instanceof VaultUnavailableError) {
+    console.error(error.name);
+    response.status(503).json({ error: error.message });
+    return;
+  }
+
+  if (error instanceof VaultIntegrityError || error instanceof VaultPersistenceError) {
+    console.error(error.name);
+    response.status(500).json({ error: 'Error interno del servidor.' });
+    return;
+  }
+
+  console.error(error instanceof Error ? error.name : 'UnhandledError');
   response.status(500).json({ error: 'Error interno del servidor.' });
 };
 
