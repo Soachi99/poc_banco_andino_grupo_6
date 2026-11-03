@@ -1,4 +1,5 @@
 import { DomainError } from '../../domain/errors/DomainError.js';
+import { formatPublicToken } from '../../domain/value-objects/PiiType.js';
 import type { AnonymizeMessageCommand, AnonymizeMessageResult } from '../dto/AnonymizeMessageDto.js';
 import type { DetectPiiUseCase } from './DetectPiiUseCase.js';
 import type { GenerateTokenUseCase } from './GenerateTokenUseCase.js';
@@ -28,8 +29,8 @@ export class AnonymizeMessageUseCase {
         throw new DomainError('La detección de PII no coincide con el texto del mensaje.');
       }
 
-      const token = await this.generateToken.execute(detection.type, detection.normalizedValue);
-      anonymizedMessage += message.slice(cursor, detection.start) + token.value;
+      const token = await this.generateToken.execute(detection.type, detection.normalizedValue, detection.rawValue);
+      anonymizedMessage += message.slice(cursor, detection.start) + formatPublicToken(detection.type, token.value);
       cursor = detection.end;
     }
 

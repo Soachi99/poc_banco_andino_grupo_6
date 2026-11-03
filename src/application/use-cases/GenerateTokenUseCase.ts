@@ -17,7 +17,7 @@ export class GenerateTokenUseCase {
     private readonly tokenMappingRepository: TokenMappingRepository,
   ) {}
 
-  async execute(piiType: PiiType, normalizedValue: string): Promise<Token> {
+  async execute(piiType: PiiType, normalizedValue: string, originalValue: string): Promise<Token> {
     const existing = await this.tokenMappingRepository.findByPii(piiType, normalizedValue);
     if (existing) {
       return existing.token;
@@ -30,7 +30,7 @@ export class GenerateTokenUseCase {
         continue;
       }
 
-      const mapping = TokenMapping.create({ piiType, normalizedValue, token });
+      const mapping = TokenMapping.create({ piiType, normalizedValue, originalValue, token });
 
       try {
         await this.tokenMappingRepository.save(mapping);

@@ -19,3 +19,19 @@ export function isPiiType(value: string): value is PiiType {
 export function piiTypePriority(type: PiiType): number {
   return PII_TYPE_PRIORITY[type];
 }
+
+/** Prefijo público del seudónimo. El secreto aleatorio sigue sin derivarse del dato. */
+export const PII_TOKEN_PREFIX: Record<PiiType, string> = {
+  [PiiType.PersonName]: 'NAME',
+  [PiiType.Email]: 'EMAIL',
+  [PiiType.Phone]: 'PHONE',
+};
+
+export function formatPublicToken(piiType: PiiType, secret: string): string {
+  return `${PII_TOKEN_PREFIX[piiType]}_${secret}`;
+}
+
+export function piiTypeForPrefix(prefix: string): PiiType | null {
+  const match = (Object.keys(PII_TOKEN_PREFIX) as PiiType[]).find((type) => PII_TOKEN_PREFIX[type] === prefix);
+  return match ?? null;
+}

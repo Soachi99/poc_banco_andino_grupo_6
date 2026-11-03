@@ -10,21 +10,23 @@ import { InMemoryTokenMappingRepository } from '../../../src/infrastructure/pers
 describe('GenerateTokenUseCase', () => {
   it('reuses the stored token for the same type and value', async () => {
     const generator = new ScriptedTokenGenerator(['a'.repeat(32), 'b'.repeat(32)]);
-    const useCase = new GenerateTokenUseCase(generator, new InMemoryTokenMappingRepository());
+    const repository = new InMemoryTokenMappingRepository();
+    const useCase = new GenerateTokenUseCase(generator, repository);
 
-    const first = await useCase.execute(PiiType.Email, 'ada@lovelace.dev');
-    const second = await useCase.execute(PiiType.Email, 'ada@lovelace.dev');
+    const first = await useCase.execute(PiiType.Email, 'ada@lovelace.dev', 'Ada@Lovelace.dev');
+    const second = await useCase.execute(PiiType.Email, 'ada@lovelace.dev', 'ADA@lovelace.dev');
 
     expect(second.value).toBe(first.value);
     expect(generator.calls).toBe(1);
+    expect((await repository.findByPii(PiiType.Email, 'ada@lovelace.dev'))?.originalValue).toBe('Ada@Lovelace.dev');
   });
 
   it('keeps different PII types on different tokens', async () => {
     const generator = new ScriptedTokenGenerator(['a'.repeat(32), 'b'.repeat(32)]);
     const useCase = new GenerateTokenUseCase(generator, new InMemoryTokenMappingRepository());
 
-    const asEmail = await useCase.execute(PiiType.Email, '3152319157');
-    const asPhone = await useCase.execute(PiiType.Phone, '3152319157');
+    const asEmail = await useCase.execute(PiiType.Email, '3152319157', '3152319157');
+    const asPhone = await useCase.execute(PiiType.Phone, '3152319157', '3152319157');
 
     expect(asEmail.value).not.toBe(asPhone.value);
   });
@@ -36,13 +38,14 @@ describe('GenerateTokenUseCase', () => {
       TokenMapping.create({
         piiType: PiiType.Phone,
         normalizedValue: '3000000000',
+        originalValue: '3000000000',
         token: Token.create(collided),
       }),
     );
 
     const generator = new ScriptedTokenGenerator([collided, 'b'.repeat(32)]);
     const useCase = new GenerateTokenUseCase(generator, repository);
-    const token = await useCase.execute(PiiType.Email, 'ada@lovelace.dev');
+    const token = await useCase.execute(PiiType.Email, 'ada@lovelace.dev', 'ada@lovelace.dev');
 
     expect(token.value).toBe('b'.repeat(32));
   });

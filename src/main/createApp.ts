@@ -1,6 +1,7 @@
 import express, { type Express } from 'express';
 
 import { AnonymizeMessageUseCase } from '../application/use-cases/AnonymizeMessageUseCase.js';
+import { DeanonymizeMessageUseCase } from '../application/use-cases/DeanonymizeMessageUseCase.js';
 import { DetectPiiUseCase } from '../application/use-cases/DetectPiiUseCase.js';
 import { GenerateTokenUseCase } from '../application/use-cases/GenerateTokenUseCase.js';
 import type { TokenMappingRepository } from '../domain/repositories/TokenMappingRepository.js';
@@ -13,8 +14,10 @@ import { RegexPiiDetector } from '../infrastructure/detection/RegexPiiDetector.j
 import { InMemoryTokenMappingRepository } from '../infrastructure/persistence/InMemoryTokenMappingRepository.js';
 import { CryptoTokenGenerator } from '../infrastructure/tokenization/CryptoTokenGenerator.js';
 import { AnonymizeController } from '../presentation/http/controllers/AnonymizeController.js';
+import { DeanonymizeController } from '../presentation/http/controllers/DeanonymizeController.js';
 import { errorHandler } from '../presentation/http/middleware/errorHandler.js';
 import { anonymizeRoutes } from '../presentation/http/routes/anonymizeRoutes.js';
+import { deanonymizeRoutes } from '../presentation/http/routes/deanonymizeRoutes.js';
 
 export interface AppDependencies {
   detector?: PiiDetector;
@@ -36,12 +39,13 @@ export function createApp(dependencies: AppDependencies = {}): Express {
   const detectPii = new DetectPiiUseCase(detector);
   const generateToken = new GenerateTokenUseCase(tokenGenerator, tokenMappingRepository);
   const anonymizeMessage = new AnonymizeMessageUseCase(detectPii, generateToken);
-  const controller = new AnonymizeController(anonymizeMessage);
+  const deanonymizeMessage = new DeanonymizeMessageUseCase(tokenMappingRepository);
 
   const app = express();
   app.disable('x-powered-by');
   app.use(express.json({ limit: '100kb' }));
-  app.use(anonymizeRoutes(controller));
+  app.use(anonymizeRoutes(new AnonymizeController(anonymizeMessage)));
+  app.use(deanonymizeRoutes(new DeanonymizeController(deanonymizeMessage)));
   app.use(errorHandler);
 
   return app;

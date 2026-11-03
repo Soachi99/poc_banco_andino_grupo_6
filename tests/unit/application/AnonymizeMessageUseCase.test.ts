@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { DetectedPii } from '../../../src/domain/entities/DetectedPii.js';
 import type { PiiDetector } from '../../../src/domain/services/PiiDetector.js';
 import type { TokenGenerator } from '../../../src/domain/services/TokenGenerator.js';
-import { PiiType } from '../../../src/domain/value-objects/PiiType.js';
+import { formatPublicToken, PiiType } from '../../../src/domain/value-objects/PiiType.js';
 import { Token } from '../../../src/domain/value-objects/Token.js';
 import { AnonymizeMessageUseCase } from '../../../src/application/use-cases/AnonymizeMessageUseCase.js';
 import { DetectPiiUseCase } from '../../../src/application/use-cases/DetectPiiUseCase.js';
@@ -24,7 +24,7 @@ describe('AnonymizeMessageUseCase', () => {
     const { anonymizedMessage } = await useCase.execute({ message: sample });
 
     expect(anonymizedMessage).toMatch(
-      /^Oferta de trabajo para [a-f0-9]{32} con email [a-f0-9]{32} y teléfono [a-f0-9]{32}$/,
+      /^Oferta de trabajo para NAME_[a-f0-9]{32} con email EMAIL_[a-f0-9]{32} y teléfono PHONE_[a-f0-9]{32}$/,
     );
     expect(anonymizedMessage).not.toContain('Dago Borda');
     expect(anonymizedMessage).not.toContain('dborda@gmail.com');
@@ -77,8 +77,9 @@ describe('AnonymizeMessageUseCase', () => {
     );
 
     const result = await useCase.execute({ message: 'Ada Lovelace y Ada Lovelace' });
+    const token = formatPublicToken(PiiType.PersonName, 'a'.repeat(32));
 
-    expect(result.anonymizedMessage).toBe(`${'a'.repeat(32)} y ${'a'.repeat(32)}`);
+    expect(result.anonymizedMessage).toBe(`${token} y ${token}`);
     expect(generator.calls).toBe(1);
   });
 });

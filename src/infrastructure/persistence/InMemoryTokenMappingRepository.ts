@@ -5,8 +5,8 @@ import type { PiiType } from '../../domain/value-objects/PiiType.js';
 
 /**
  * Vault volátil del proceso.
- * El adaptador guarda el valor normalizado en claro porque la seudonimización
- * debe poder revertirse. Un adaptador persistente tiene que cifrar ese valor en reposo.
+ * Guarda el valor original en claro para poder restituirlo.
+ * Un adaptador persistente tiene que cifrar ese valor en reposo.
  */
 export class InMemoryTokenMappingRepository implements TokenMappingRepository {
   private readonly byPii = new Map<PiiType, Map<string, TokenMapping>>();

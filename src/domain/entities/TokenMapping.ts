@@ -5,6 +5,7 @@ import type { Token } from '../value-objects/Token.js';
 export interface TokenMappingProps {
   piiType: PiiType;
   normalizedValue: string;
+  originalValue: string;
   token: Token;
   createdAt?: Date;
 }
@@ -12,12 +13,13 @@ export interface TokenMappingProps {
 /**
  * Vínculo reversible entre un dato sensible y su seudónimo.
  * Conservarlo permite una desanonimización controlada posterior.
- * El valor normalizado sigue siendo PII.
+ * originalValue es el texto recuperable. normalizedValue solo identifica el dato.
  */
 export class TokenMapping {
   private constructor(
     readonly piiType: PiiType,
     readonly normalizedValue: string,
+    readonly originalValue: string,
     readonly token: Token,
     readonly createdAt: Date,
   ) {}
@@ -31,6 +33,16 @@ export class TokenMapping {
       throw new DomainError('El valor sensible normalizado no puede estar vacío.');
     }
 
-    return new TokenMapping(props.piiType, props.normalizedValue, props.token, props.createdAt ?? new Date());
+    if (props.originalValue.length === 0) {
+      throw new DomainError('El valor original no puede estar vacío.');
+    }
+
+    return new TokenMapping(
+      props.piiType,
+      props.normalizedValue,
+      props.originalValue,
+      props.token,
+      props.createdAt ?? new Date(),
+    );
   }
 }

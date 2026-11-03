@@ -17,7 +17,7 @@ describe('POST /anonymize', () => {
     expect(first.status).toBe(200);
     expect(first.body).toEqual({
       anonymizedMessage: expect.stringMatching(
-        /^Oferta de trabajo para [a-f0-9]{32} con email [a-f0-9]{32} y teléfono [a-f0-9]{32}$/,
+        /^Oferta de trabajo para NAME_[a-f0-9]{32} con email EMAIL_[a-f0-9]{32} y teléfono PHONE_[a-f0-9]{32}$/,
       ),
     });
     expect(new Set(tokens).size).toBe(3);
