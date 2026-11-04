@@ -4,6 +4,15 @@ Prueba de concepto para seudonimizar información personal identificable (PII) a
 
 `POST /anonymize` detecta nombres, correos y teléfonos, sustituye cada dato por un token y conserva el vínculo en un vault. `POST /deanonymize` restituye el texto original consultando solo ese vault. La operación es **seudonimización**: el token no permite reconstruir el dato, pero el vault sí guarda la relación. No es anonimización irreversible.
 
+## Entrega del Taller 2
+
+Los dos documentos de la entrega están en [`entrega/`](entrega/).
+
+| Documento | Qué contiene |
+| --- | --- |
+| [Prompts y evidencias (PDF)](entrega/Prompts%20y%20Evidencias.pdf) | Prompts usados y capturas de la prueba de concepto. En GitHub el enlace abre el visor del PDF. |
+| [Colección de Postman](entrega/Pruebas%20de%20concepto%20anonimizacion.postman_collection.json) | Peticiones `POST /anonymize`, `POST /deanonymize` y `POST /secureChatGPT`, cada una con la respuesta guardada. En GitHub el enlace muestra el JSON. En Postman: Import y elegir este archivo. |
+
 ## Ejecutar
 
 Requiere Node.js 22 o superior. El SDK oficial de OpenAI no admite versiones anteriores.
